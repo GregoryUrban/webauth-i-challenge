@@ -1,26 +1,28 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import ReactDom from 'react-dom';
+// import ReactScripts from 'react-scripts';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import './App.css';
+import cors from "cors"
+import Users from '../../index'
+
+class App extends React.Component {
+constructor() {
+  super()
+  this.state = {
+    Users: []
+  }
+}
+
+  render() {
+
+    return (
+      <div className="App">
+        <h1>Cmon Users Page!</h1>
+          <Users />
+      </div>
+    );
+  }
 }
 
 export default App;
