@@ -11,7 +11,16 @@ const server = express();
 
 server.use(helmet());
 server.use(express.json());
-server.use(cors());
+// server.use(cors());
+
+const corsOptions = {
+  origin: '*',
+  methods: 'GET, HEAD, PUT, PATCH, POST, DELETE',
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+server.use(cors(corsOptions));
 
 // endpoints 
 
@@ -56,7 +65,7 @@ server.get('/', (req, res) => {
   });
   
   // protect this route, users must provide valid credentials to see the list of users
-  server.get('/api/users', protected, (req, res) => {
+  server.get('/api/users', (req, res) => { // protected was here
     Users.find()
       .then(users => {
         res.json(users);
