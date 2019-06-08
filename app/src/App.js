@@ -1,11 +1,12 @@
 import React from 'react';
 import axios from 'axios';
-import { Route } from 'react-router-dom';
+import { Route, NavLink } from 'react-router-dom';
 
 import './App.css';
 import Users from './components/users.js';
 // import ErrorBoundary from './components/errorBoundary.js'
 import UserForm from './components/userForm.js'
+import Login from './components/Login.js';
 
 
 class App extends React.Component {
@@ -39,7 +40,14 @@ updateUser = (id, info) => {
 render() {
   return (
     <div className="App">
-     
+    
+
+         <li>
+            <NavLink exact to="/login" >
+              Login
+            </NavLink>
+          </li>
+
       <Route 
         exact path="/"
         render={props => 
@@ -55,9 +63,9 @@ render() {
     render={props => 
     <UserForm {...props} getUsers={this.getUsers} />
     }
+    />
   
-  
-  />
+  <Route exact path='/login' component={Login}/>
 
     </div>
   );

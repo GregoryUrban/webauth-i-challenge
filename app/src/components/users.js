@@ -17,6 +17,7 @@ class Users extends Component {
               user={user.username}
                 id={user.id}
                 key={user.id}
+                password={user.password}
                 deleteUser={this.props.deleteUser}
                 updateUser={this.props.updateUser}
               />

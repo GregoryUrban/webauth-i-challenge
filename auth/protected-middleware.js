@@ -12,7 +12,6 @@ function protected (req,res,next) {
   
           if (user && bcrypt.compareSync(password, user.password)) {
             next();
-            // res.status(200).json({ message: `Welcome ${user.username}!` });
           } else {
             res.status(401).json({ message: 'You shall not pass!' });
           }

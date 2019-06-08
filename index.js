@@ -2,6 +2,7 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const session = require('express-session');
 
 const db = require('./database/dbConfig.js');
 const Users = require('./users/users-model.js');
@@ -9,6 +10,19 @@ const protected = require('./auth/protected-middleware.js')
 
 const server = express();
 
+const sessionConfig = {
+  name: 'monster', // by default would be sid, but you want to trick the hackers
+  secret: 'super duper safe mf secret', // ONLY the server will know this
+  cookie: {
+    maxAge: 60 *60 *1000,
+    secure: false, // we dont want to have a secure https in dev, just http. If production you say tru
+    httpOnly: true //prevent access from javascript
+  },
+  resave: false, // resave session even if it didnt change?
+  saveUninitialized: true, // Create new sessions automatically, OK to save with cookies - this is to comply with laws on security
+}
+
+server.use(session(sessionConfig)) 
 server.use(helmet());
 server.use(express.json());
 // server.use(cors());
@@ -25,7 +39,8 @@ server.use(cors(corsOptions));
 // endpoints 
 
 server.get('/', (req, res) => {
-    res.send("It's alive!");
+  const username = req.session.username || 'stranger';
+  res.send(`Hello ${username}!`);
   });
   
   server.post('/api/register', (req, res) => {
@@ -46,14 +61,20 @@ server.get('/', (req, res) => {
       });
   });
   
-  server.post('/api/login', (req, res) => {
+  server.post('/api/auth/login',(req, res) => {
     let { username, password } = req.body;
   
+    if (!username || !password) {
+      res.status(400).json({
+        errorMessage: "Please provide a username, and password."
+      });
+    } else {
     // we compare the password guess against the database hash
     Users.findBy({ username })
       .first()
       .then(user => {
         if (user && bcrypt.compareSync(password, user.password)) {
+          req.session.username = user.username;  // the cookie is sent by express-session library
           res.status(200).json({ message: `Welcome ${user.username}!` });
         } else {
           res.status(401).json({ message: 'You shall not pass!' });
@@ -62,10 +83,11 @@ server.get('/', (req, res) => {
       .catch(error => {
         res.status(500).json(error);
       });
+    }
   });
   
   // protect this route, users must provide valid credentials to see the list of users
-  server.get('/api/users', (req, res) => { // protected was here
+  server.get('/api/users', protected, (req, res) => {
     Users.find()
       .then(users => {
         res.json(users);
@@ -87,6 +109,21 @@ server.get('/', (req, res) => {
       }
     } catch (error) {}
   });
+
+  server.get('/api/auth/logout', (req, res) => {
+    if (req.session) {
+      req.session.destroy((err) =>{
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ message: 'Twas an error logging out'});
+        }
+        res.end();
+      });
+    } else {
+      res.end();
+    }
+  
+})
 
   // middleware here: './protected/protected-middleware.js'
   

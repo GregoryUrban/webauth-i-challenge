@@ -20,7 +20,7 @@ class UserForm extends Component {
       this.props.getUsers();
       this.props.history.push('/');
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log(err, {message: err}));
 
     this.setState({
       name: '',
